@@ -43,14 +43,35 @@ VALUES
         cursor.close()
         self.connection.commit()
         
-    def first(self) -> str:
+    def first(self):
         cursor = self.connection.cursor()
         with open('sqlscripts/first.sql') as script:
             command = script.read()
-            print(command)
+            #print(command)
             cursor.execute(command)
-        print(cursor.fetchall())
-        return 'f'
+        #print(cursor.fetchall())
+        return cursor.fetchall()
+
+    def second(self):
+        cursor = self.connection.cursor()
+        with open('sqlscripts/second.sql') as script:
+            command = script.read()
+            cursor.execute(command)
+        return cursor.fetchall()
+
+    def third(self):
+        cursor = self.connection.cursor()
+        with open('sqlscripts/third.sql') as script:
+            command = script.read()
+            cursor.execute(command)
+        return cursor.fetchall()
+
+    def fourth(self):
+        cursor = self.connection.cursor()
+        with open('sqlscripts/fourth.sql') as script:
+            command = script.read()
+            cursor.execute(command)
+        return cursor.fetchall()
     
 def read_rooms_lines(path: str) -> Generator[str,int,int]:
         with open(path) as rooms_json:
