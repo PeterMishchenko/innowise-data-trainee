@@ -11,6 +11,12 @@ from DB_class import MyDB_PostgreSQL
 @click.option('--rooms_path','-r', default= 'data/rooms.json', help='Path to rooms.json')
 @click.option('--output_format','-of', default= 'terminal', help='Output format: terminal - show on screen, xml, json')
 def main(students_path , rooms_path, output_format):
+    allowed_output_format = ['terminal', 'json','xml']
+    if output_format not in allowed_output_format:
+        print(f'Wrong --output_format {output_format}, sholud be in {allowed_output_format}')
+
+    # create docker container for postgresql
+
     docker_client = docker.from_env()
     db_name = 'pg_task1'
     db_user = 'admin'
@@ -43,18 +49,23 @@ def main(students_path , rooms_path, output_format):
     print('tables are created')
     print("")
     #while t != 'quit':
-    click.echo('Now everything is ready!\nChose the command you whant:\n*first - for first script\n*second - for second script\n*third - for third script\n*fourth - for fourth script\n*exit-for exit')
+    click.echo('Now everything is ready!\nChose the command you whant:\n`first` - for first script\n`second` - for second script\n`third` - for third script\n`fourth` - for fourth script\n`all` - for all scripts\n`exit`-for exit')
     while True:
         c = click.prompt('>>')
         match c:
             case 'first':
-                print(db.first())
+                first(db, output_format)
             case 'second':
-                pass
+                second(db, output_format)
             case 'third':
-                pass
+                third(db, output_format)
             case 'fourth':
-                pass
+                fourth(db,output_format)
+            case 'all':
+                first(db, output_format)
+                second(db, output_format)
+                third(db, output_format)
+                fourth(db,output_format)
             case 'exit':
                 break
     
@@ -64,8 +75,73 @@ def main(students_path , rooms_path, output_format):
 
 
 
-def foo(cf):
-    print(cf)
+def first(db:MyDB_PostgreSQL, output_format):
+    result = db.first()
+    if output_format == 'terminal':
+        print('Room number, student count\n'+'\n'.join([f'{s}, {j}' for s,j in result]))
+    elif output_format == 'json':
+        s = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s},\n\t\t\t"students_count": {j}\n\t\t}}' for s,j in result) \
+        + '\n\t]\n}'
+        with open("first_results.json",'w') as f:
+            f.write(s)
+    elif output_format == 'xml':
+        s = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s}</room_number><students_count>{j}</students_count></row>' for s,j in result) \
+            + '\n</results>'
+        with open("first_results.xml",'w') as f:
+            f.write(s)
+
+def second(db:MyDB_PostgreSQL, output_format):
+    result = db.second()
+    if output_format == 'terminal':
+        print('Room number\n'+'\n'.join([str(s) for s in result]))
+    elif output_format == 'json':
+        s = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        + '\n\t]\n}'
+        with open("second_results.json",'w') as f:
+            f.write(s)
+    elif output_format == 'xml':
+        s = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+            + '\n</results>'
+        with open("second_results.xml",'w') as f:
+            f.write(s)
+
+def third(db:MyDB_PostgreSQL, output_format):
+    result = db.third()
+    if output_format == 'terminal':
+        print('Room number\n'+'\n'.join([str(s) for s in result]))
+    elif output_format == 'json':
+        s = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        + '\n\t]\n}'
+        with open("third_results.json",'w') as f:
+            f.write(s)
+    elif output_format == 'xml':
+        s = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+            + '\n</results>'
+        with open("third_results.xml",'w') as f:
+            f.write(s)
+
+def fourth(db:MyDB_PostgreSQL, output_format):
+    result = db.fourth()
+    if output_format == 'terminal':
+        print('Room number\n'+'\n'.join([str(s) for s in result]))
+    elif output_format == 'json':
+        s = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        + '\n\t]\n}'
+        with open("fourth_results.json",'w') as f:
+            f.write(s)
+    elif output_format == 'xml':
+        s = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+            + '\n</results>'
+        with open("fourth_results.xml",'w') as f:
+            f.write(s)
 
 if __name__ == '__main__':
     main()
