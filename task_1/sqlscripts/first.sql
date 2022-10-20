@@ -1,0 +1,1 @@
+select room_id , count(id) as st_num from student group by room_id order by room_id;
