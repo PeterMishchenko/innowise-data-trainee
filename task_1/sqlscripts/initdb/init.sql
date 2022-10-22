@@ -9,4 +9,5 @@ CREATE table student (
     room_id integer,
     sex int,
     birthday int
-)
+);
+

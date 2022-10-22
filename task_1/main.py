@@ -1,9 +1,8 @@
-import docker
-import time
+
 import click
 
-import psycopg2
-from DB_class import MyDB_PostgreSQL
+from pg_connector import PostgreSQL_connector
+from pg_container import PostgreSQL_container
 
 
 @click.command()
@@ -11,50 +10,35 @@ from DB_class import MyDB_PostgreSQL
 @click.option('--rooms_path','-r', default= 'data/rooms.json', help='Path to rooms.json')
 @click.option('--output_format','-of', default= 'terminal', help='Output format: terminal - show on screen, xml, json')
 def main(students_path , rooms_path, output_format):
-    allowed_output_format = ['terminal', 'json','xml']
+
+    allowed_output_format = ['terminal', 'json','xml', 'time']
     if output_format not in allowed_output_format:
         print(f'Wrong --output_format {output_format}, sholud be in {allowed_output_format}')
 
     # create docker container for postgresql
-
-    docker_client = docker.from_env()
-    db_name = 'pg_task1'
-    db_user = 'admin'
-    db_password = 'P@ssw0rd'
-    print('starting database...\r')
-    db_container = docker_client.containers.run(image='postgres:15.0', 
-                                                detach=True, 
-                                                environment = {'POSTGRES_PASSWORD': db_password,
-                                                            'POSTGRES_DB':db_name,
-                                                            'POSTGRES_USER':db_user},
-                                                ports = {'5432':'5432'},
-                                                volumes = {'sqlscripts/initdb':{'bind':'/docker-entrypoint-initdb.d','mode':'ro'}}
-                                                )
-    time.sleep(1)
-
-    print('databas is created\nconnecting to db...\r')
-    for _ in range(5):
-        try:
-            db = MyDB_PostgreSQL('0.0.0.0', db_user, db_password, db_name,)
-            break
-        except psycopg2.OperationalError:
-            pass
-    if db!=db:
-        print('db connection timeout')
-        db_container.kill()
-        exit()
-
-    print('connection success\ncreatingT tables...\r')
-    db.create_tabels(rooms=rooms_path, students=students_path)
-    print('tables are created')
-    print("")
-    #while t != 'quit':
-    click.echo('Now everything is ready!\nChose the command you whant:\n`first` - for first script\n`second` - for second script\n`third` - for third script\n`fourth` - for fourth script\n`all` - for all scripts\n`exit`-for exit')
+    container = PostgreSQL_container()
+    container.run()
+    
+    # connecting to DB
+    try: 
+        db = PostgreSQL_connector()
+    except Exception as e:
+        print(e.args)
+        container.kill()
+        return
+    
+    # inserting data to db
+    db.isert_data(rooms=rooms_path, students=students_path)
+    
+    
+    click.echo('Now everything is ready!')
+    click.echo('\nChose the command you want:\n`first` - for first script\n`second` - for second script\n`third` - for third script\n`fourth` - for fourth script\n`all` - for all scripts\n`exit`-for exit')
     while True:
         c = click.prompt('>>')
         match c:
             case 'first':
                 first(db, output_format)
+                continue
             case 'second':
                 second(db, output_format)
             case 'third':
@@ -68,14 +52,16 @@ def main(students_path , rooms_path, output_format):
                 fourth(db,output_format)
             case 'exit':
                 break
+            case _:
+                click.echo(f'Wrong command - {c}')
+                click.echo('Chose the command you want:\n`first` - for first script\n`second` - for second script\n`third` - for third script\n`fourth` - for fourth script\n`all` - for all scripts\n`exit`-for exit')
     
-    
-    db_container.kill()
+    container.kill()
     print('thank you')
 
 
 
-def first(db:MyDB_PostgreSQL, output_format):
+def first(db:PostgreSQL_connector, output_format):
     result = db.first()
     if output_format == 'terminal':
         print('Room number, student count\n'+'\n'.join([f'{s}, {j}' for s,j in result]))
@@ -92,56 +78,59 @@ def first(db:MyDB_PostgreSQL, output_format):
         with open("first_results.xml",'w') as f:
             f.write(s)
 
-def second(db:MyDB_PostgreSQL, output_format):
+def second(db:PostgreSQL_connector, output_format):
     result = db.second()
     if output_format == 'terminal':
-        print('Room number\n'+'\n'.join([str(s) for s in result]))
+        print('Room number\n'+'\n'.join([str(s[0]) for s in result]))
     elif output_format == 'json':
-        s = '{\n\t"results":[\n' \
-        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        out = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s[0]}\n\t\t}}' for s in result) \
         + '\n\t]\n}'
         with open("second_results.json",'w') as f:
-            f.write(s)
+            f.write(out)
     elif output_format == 'xml':
-        s = '<results>\n' \
-            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+        out = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s[0]}</room_number></row>' for s in result) \
             + '\n</results>'
         with open("second_results.xml",'w') as f:
-            f.write(s)
+            f.write(out)
 
-def third(db:MyDB_PostgreSQL, output_format):
+def third(db:PostgreSQL_connector, output_format):
     result = db.third()
     if output_format == 'terminal':
-        print('Room number\n'+'\n'.join([str(s) for s in result]))
+        print('Room number\n'+'\n'.join([str(s[0]) for s in result]))
     elif output_format == 'json':
-        s = '{\n\t"results":[\n' \
-        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        out = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s[0]}\n\t\t}}' for s in result) \
         + '\n\t]\n}'
         with open("third_results.json",'w') as f:
-            f.write(s)
+            f.write(out)
     elif output_format == 'xml':
-        s = '<results>\n' \
-            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+        out = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s[0]}</room_number></row>' for s in result) \
             + '\n</results>'
         with open("third_results.xml",'w') as f:
-            f.write(s)
+            f.write(out)
 
-def fourth(db:MyDB_PostgreSQL, output_format):
+def fourth(db:PostgreSQL_connector, output_format):
     result = db.fourth()
     if output_format == 'terminal':
-        print('Room number\n'+'\n'.join([str(s) for s in result]))
+        print('Room number\n'+'\n'.join([str(s[0]) for s in result]))
     elif output_format == 'json':
-        s = '{\n\t"results":[\n' \
-        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s}\n\t\t}}' for s in result) \
+        out = '{\n\t"results":[\n' \
+        + ',\n'.join(f'\t\t{{\n\t\t\t"room_number": {s[0]}\n\t\t}}' for s in result) \
         + '\n\t]\n}'
         with open("fourth_results.json",'w') as f:
-            f.write(s)
+            f.write(out)
     elif output_format == 'xml':
-        s = '<results>\n' \
-            + '\n'.join(f'<row><room_number>{s}</room_number></row>' for s in result) \
+        out = '<results>\n' \
+            + '\n'.join(f'<row><room_number>{s[0]}</room_number></row>' for s in result) \
             + '\n</results>'
         with open("fourth_results.xml",'w') as f:
-            f.write(s)
+            f.write(out)
+
+
+
 
 if __name__ == '__main__':
     main()

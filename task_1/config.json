@@ -1,0 +1,8 @@
+{
+    "pg_image": "postgres:15.0",
+    "pg_host": "0.0.0.0",
+    "pg_port": "5432",
+    "pg_db_name": "pg_task1",
+    "pg_user": "admin",
+    "pg_password": "P@ssw0rd"
+}
