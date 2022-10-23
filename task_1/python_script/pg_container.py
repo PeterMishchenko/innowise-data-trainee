@@ -1,7 +1,6 @@
 import os
 import docker
 
-from config import CONFIG
 
 class PostgreSQL_container:
     def __init__(self) -> None:
@@ -13,7 +12,7 @@ class PostgreSQL_container:
         self._db_container = self._docker_client.containers.run(
                                                                 image= CONFIG.pg_image, 
                                                                 detach=True, 
-                                                                environment = {'POSTGRES_PASSWORD': CONFIG.pg_password,
+                                                                environment = {'POSTGRES_PASSWORD': os. .pg_password,
                                                                                 'POSTGRES_DB':CONFIG.pg_db_name,
                                                                                 'POSTGRES_USER':CONFIG.pg_user},
                                                                 ports = {'5432':CONFIG.pg_port},

@@ -1,1 +1,1 @@
-EXPLAIN ANALYZE select room_id from student group by room_id order by  max(extract(epoch from now()) - birthday)-  min(extract(epoch from now()) - birthday)  desc limit 5;
+select room_id from student group by room_id order by  cast(max(birthday) as bigint) - cast(min(birthday) as bigint) desc limit 5;

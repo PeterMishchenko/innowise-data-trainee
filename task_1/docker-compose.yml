@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15.0
+    restart: always
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=P@ssw0rd
+      - POSTGRES_DB=pg_task1
+    ports:
+      - '5432:5432'
+    volumes: 
+      - ./sqlscripts/initdb:/docker-entrypoint-initdb.d
+  console:
+    build:
+      context: ./python_script
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASSWORD: P@ssw0rd
+      DB_NAME: pg_task1
+      OUTPUT_FORMAT: $OUTPUT_FORMAT
+    links:
+      - db
+    volumes:
+      - './results:/python/results'
+      - './sqlscripts:/python/sqlscripts'

@@ -1,1 +1,1 @@
-EXPLAIN ANALYZE select room_id from student group by room_id order by  avg(extract(epoch from now()) - birthday)  desc limit 5;
+select room_id from student group by room_id order by  avg(birthday)  desc limit 5;

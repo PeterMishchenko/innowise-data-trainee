@@ -1,1 +1,1 @@
-EXPLAIN ANALYZE select room_id , count(*) as st_num from student group by room_id order by room_id;
+select room_id , count(*) as st_num from student group by room_id order by room_id;
