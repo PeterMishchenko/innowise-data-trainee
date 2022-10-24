@@ -6,8 +6,9 @@ authors = ["PM"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 serverless-psycopg2 = "^0.0.2"
+jsonschema = "^4.16.0"
 
 
 [build-system]

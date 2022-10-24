@@ -4,6 +4,7 @@ import json
 import datetime as dt
 import time
 import os
+from jsonschema import validate , ValidationError
 
 
 class PostgreSQL_connector:
@@ -22,6 +23,9 @@ class PostgreSQL_connector:
         raise Exception("db connection timeout")
 
     def isert_data(self, rooms:str = 'data/rooms.json', students:str = 'data/students.json'):
+
+        self.check_files(rooms, students)
+
         cursor = self.__connection.cursor()
 
         #inserting rooms data
@@ -34,18 +38,27 @@ class PostgreSQL_connector:
         inser_students_comand = f"INSERT INTO\nstudent(id, name, room_id, sex, birthday)\nVALUES\n{students_values}"
         cursor.execute(inser_students_comand)
 
-
-
         # finishing
         cursor.close()
         self.__connection.commit()
 
-    def create_index(self):
-        cursor = self.__connection.cursor()
-        cursor.execute('CREATE INDEX ind_student_room ON student(room_id);')
+    def check_files(self, rooms, students):
+        try:
+            with open(rooms) as r, open("data/rooms_schema.json") as s:
+                validate(instance= json.load(r),schema = json.load(s))
+        except ValidationError as e:
+            print("Wrong format of rooms.json")
+            print(e)
+            exit()
+        
+        try:
+            with open(students) as r, open("data/students_schema.json") as s:
+                validate(instance= json.load(r),schema = json.load(s))
+        except ValidationError as e:
+            print("Wrong format of students.json")
+            print(e)
+            exit()
 
-        cursor.close()
-        self.__connection.commit()
         
     def first(self):
         cursor = self.__connection.cursor()

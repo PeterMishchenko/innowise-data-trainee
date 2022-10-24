@@ -1,0 +1,41 @@
+{   "type":"array",
+    "items": { "$ref": "#/$defs/student" },
+    "$defs":{
+        "student":{
+            "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": -32768,
+            "maximum": 32767
+          },
+          "room": {
+            "type": "integer",
+            "minimum": -32768,
+            "maximum": 32767
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 30
+          },
+          "sex": {
+            "type": "string",
+            "enum": ["M", "F"]
+          },
+          "birthday": {
+            "type": "string",
+            "pattern": "(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})"
+          }
+        },
+        "required": [
+          "id",
+          "room",
+          "name",
+          "sex",
+          "birthday"
+
+        ]
+        }
+    }
+
+}
