@@ -38,6 +38,8 @@ cd task_1
 * students (default `python_script/data/student.json`)
 * rooms.json (default `python_script/data/student.json`)
 
+results will be in `results/`
+
 ### Manual run
 to run manually, copy your `students.json` and `rooms.json` files to python_script/data/
 
