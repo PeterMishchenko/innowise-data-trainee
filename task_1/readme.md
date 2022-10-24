@@ -45,5 +45,5 @@ to run manually, copy your `students.json` and `rooms.json` files to python_scri
 
 and run `docker-compose up` with OUTPUT_FORMAT variable
 ```
-OUTPUT_FORMAT=json docker-compose up
+OUTPUT_FORMAT=json docker-compose up --abort-on-container-exit
 ```
