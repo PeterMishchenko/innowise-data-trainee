@@ -1,0 +1,1 @@
+select room_id from student group by room_id order by  avg(birthday)  desc limit 5;

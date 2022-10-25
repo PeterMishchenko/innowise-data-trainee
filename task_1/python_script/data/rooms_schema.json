@@ -1,0 +1,24 @@
+{   "type":"array",
+    "items": { "$ref": "#/$defs/room" },
+    "$defs":{
+        "room":{
+            "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 10
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+        }
+    }
+
+}
