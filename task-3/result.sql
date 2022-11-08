@@ -32,7 +32,7 @@ select name
 from category join
 (
     select category_id, sum(replacement_cost) as costs 
-    from film join film_category on film.film_id = film_category.category_id
+    from film join film_category on film.film_id = film_category.film_id
     group by category_id 
     order by costs 
     desc limit 1
